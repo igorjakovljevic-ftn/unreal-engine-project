@@ -37,16 +37,19 @@ public:
 	AFPSCharacter();
 
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category="Projectile")
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<AFPSProjectile> ProjectileClass;
 
 	/** Sound to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, Category="Gameplay")
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	USoundBase* FireSound;
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	UAnimSequence* FireAnimation;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Gameplay")
+	bool IsCarryingObjective;
 
 protected:
 	
