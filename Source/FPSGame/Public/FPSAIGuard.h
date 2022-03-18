@@ -8,6 +8,15 @@
 
 class UPawnSensingComponent;
 
+//Has to be uint8 if we want to expose to blueprint
+UENUM(BlueprintType)
+enum class EAIState : uint8
+{
+	Idle,
+	Suspicious,
+	Alerted
+};
+
 UCLASS()
 class FPSGAME_API AFPSAIGuard : public ACharacter
 {
@@ -37,6 +46,12 @@ protected:
 
 	FTimerHandle TimerHandle_ResetOrientation;
 
+	EAIState GuardState;
+
+	void SetGuardState(EAIState NewState);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
+	void OnStateChanged(EAIState NewState);
 
 public:	
 	// Called every frame
