@@ -46,7 +46,12 @@ protected:
 
 	FTimerHandle TimerHandle_ResetOrientation;
 
+	//This notation specifies the way guard state is change on the client when being changed on the server: by calling the OnRep_GuardState function
+	UPROPERTY(ReplicatedUsing = OnRep_GuardState)
 	EAIState GuardState;
+
+	UFUNCTION()
+	void OnRep_GuardState();
 
 	void SetGuardState(EAIState NewState);
 

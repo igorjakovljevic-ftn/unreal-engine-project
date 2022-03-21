@@ -35,9 +35,10 @@ void AFPSExtractionZone::HandleOverlap(UPrimitiveComponent* OverlappedComponent,
 		return;
 	}
 
-	if (MyPawn->IsCarryingObjective) {
+	if (MyPawn->bIsCarryingObjective) {
 		AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
 
+		//GameMode is null on clients so complete mission isnt properly called on clients
 		if (GM) {
 			GM->CompleteMission(MyPawn, true);
 		}

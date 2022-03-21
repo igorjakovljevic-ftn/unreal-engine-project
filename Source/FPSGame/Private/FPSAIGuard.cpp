@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "FPSGame/Public/FPSGameMode.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 
 // Sets default values
@@ -103,6 +104,11 @@ void AFPSAIGuard::ResetOrientation()
 	} 
 }
 
+void AFPSAIGuard::OnRep_GuardState()
+{
+	OnStateChanged(GuardState);
+}
+
 //Here we make a function instead of directly editing the state variable because we want to make a blueprint function call
 //when the state changes
 void AFPSAIGuard::SetGuardState(EAIState NewState)
@@ -113,7 +119,8 @@ void AFPSAIGuard::SetGuardState(EAIState NewState)
 
 	GuardState = NewState;
 
-	OnStateChanged(GuardState);
+	//We want to make sure that the server and client stay up to date
+	OnRep_GuardState();
 }
 
 // Called every frame
@@ -141,6 +148,13 @@ void AFPSAIGuard::MoveToNextPatrolPoint()
 	}
 
 	UAIBlueprintHelperLibrary::SimpleMoveToActor(GetController(), CurrentPatrolPoint);
+}
+
+void AFPSAIGuard::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//This macro specifies the way replication is done
+	DOREPLIFETIME(AFPSAIGuard, GuardState);
 }
 
 

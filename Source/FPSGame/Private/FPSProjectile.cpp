@@ -29,6 +29,9 @@ AFPSProjectile::AFPSProjectile()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 
@@ -42,8 +45,11 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 		Destroy();
 	}
 
-	//The instigator of this noise is actually the character class, not the projectile itself. This is set within the Fire() method of the character class.
-	MakeNoise(1.0f, GetInstigator());
+	if (GetLocalRole() == ROLE_Authority) {
+		//The instigator of this noise is actually the character class, not the projectile itself. This is set within the Fire() method of the character class.
+		MakeNoise(1.0f, GetInstigator());
+		
+		Destroy();
+	}
 
-	Destroy();
 }

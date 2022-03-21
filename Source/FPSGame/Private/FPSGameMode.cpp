@@ -5,6 +5,9 @@
 #include "FPSCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "FPSGameState.h"
+
+//GameMode cannot be replicated to the clients which is why networking here has to be done differently (via GameState class)
 
 AFPSGameMode::AFPSGameMode()
 {
@@ -14,12 +17,14 @@ AFPSGameMode::AFPSGameMode()
 
 	// use our custom HUD class
 	HUDClass = AFPSHUD::StaticClass();
+
+	//Setting the game state for this specific game mode
+	GameStateClass = AFPSGameState::StaticClass();
 }
 
 void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bMissionSuccess)
 {
 	if (InstigatorPawn) {
-		InstigatorPawn->DisableInput(nullptr);
 
 		if (SpectatingViewpointClass) {
 			TArray<AActor*> ReturnedActors;
@@ -28,10 +33,12 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bMissionSuccess)
 			if (ReturnedActors.Num() > 0) {
 				AActor* NewViewTarget = ReturnedActors[0];
 
-				APlayerController* PC = Cast<APlayerController>(InstigatorPawn->GetController());
-
-				if (PC) {
-					PC->SetViewTargetWithBlend(NewViewTarget, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+				for (FConstPlayerControllerIterator it = GetWorld()->GetPlayerControllerIterator(); it; it++) {
+					APlayerController* PC = it->Get();
+					
+					if (PC) {
+						PC->SetViewTargetWithBlend(NewViewTarget, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+					}
 				}
 			}
 		}
@@ -40,7 +47,12 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bMissionSuccess)
 		}
 	}
 
-	OnMissionCompleted(InstigatorPawn, bMissionSuccess);
+	AFPSGameState* GS = GetGameState<AFPSGameState>();
+	if (GS) {
+		GS->MulticastOnMissionComplete(InstigatorPawn, bMissionSuccess);
+	}
 
+	//Blueprint function call
+	OnMissionCompleted(InstigatorPawn, bMissionSuccess);
 }
 
